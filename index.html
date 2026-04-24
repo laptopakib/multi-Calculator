@@ -2,89 +2,165 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Calculator and Unit Converter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Akib's Ultimate AI-Calculator</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .calculator, .converter { display: none; }
-        .active { display: block; }
-        .tab { cursor: pointer; padding: 10px; background: #f1f1f1; margin: 5px; }
-        #calculator-display { width: 100%; height: 50px; text-align: right; font-size: 24px; }
-        button { width: 60px; height: 60px; font-size: 20px; margin: 5px; }
+        :root { --bg: #000; --disp: #1a1a1a; --accent: #ff8800; --sci: #34495e; --geo: #8e44ad; --abc: #27ae60; }
+        body { font-family: 'Courier New', monospace; background: #111; color: white; margin: 0; display: flex; justify-content: center; overflow: hidden; }
+        .calc-body { width: 100vw; height: 100vh; max-width: 450px; background: var(--bg); display: flex; flex-direction: column; }
+        
+        /* ডট-ম্যাট্রিক্স ডিসপ্লে */
+        .display-area { background: var(--disp); padding: 15px; text-align: right; border-bottom: 3px solid #333; position: relative; }
+        #mode-label { position: absolute; left: 10px; top: 10px; color: var(--accent); font-size: 12px; font-weight: bold; }
+        #input-view { color: #888; font-size: 16px; min-height: 20px; letter-spacing: 1px; word-break: break-all; }
+        #result-view { color: #fff; font-size: 40px; margin-top: 10px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+
+        /* কন্ট্রোল বার */
+        .top-bar { display: flex; justify-content: space-between; padding: 10px; background: #222; }
+        .top-btn { padding: 5px 15px; border-radius: 5px; border: none; color: white; cursor: pointer; font-size: 12px; }
+
+        /* বাটন গ্রিড */
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; flex-grow: 1; }
+        button { height: 55px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; color: white; background: #333; transition: 0.1s; }
+        button:active { filter: brightness(1.5); transform: scale(0.95); }
+        
+        .op { color: var(--accent); font-weight: bold; }
+        .alpha-btn { background: var(--abc); font-size: 14px; }
+        .sci-btn { background: var(--sci); font-size: 14px; }
+        .geo-btn { background: var(--geo); font-size: 14px; }
+        .eq { grid-column: span 2; background: var(--accent); color: black; font-weight: bold; }
+        .ac { background: #c0392b; }
+
+        /* Alphabet Panel */
+        #alphabet-panel { display: none; grid-template-columns: repeat(6, 1fr); gap: 5px; padding: 10px; background: #111; border-top: 2px solid var(--abc); }
+        .abc-key { height: 40px; font-size: 12px; background: #222; }
     </style>
 </head>
 <body>
-    <h1>Multi-Calculator and Unit Converter</h1>
-    <div>
-        <div class="tab" onclick="showTab('calculator')">Calculator</div>
-        <div class="tab" onclick="showTab('converter')">Converter</div>
+
+<div class="calc-body">
+    <div class="top-bar">
+        <button class="top-btn" style="background:var(--geo)" onclick="switchMode('GEO')">Geometry</button>
+        <button class="top-btn" style="background:var(--accent)" onclick="openConverter()">Converter</button>
     </div>
-    <div id="calculator" class="calculator active">
-        <input type="text" id="calculator-display" value="0" readonly />
-        <div>
-            <button onclick="appendToDisplay('7')">7</button>
-            <button onclick="appendToDisplay('8')">8</button>
-            <button onclick="appendToDisplay('9')">9</button>
-            <button onclick="setOperation('/')">/</button>
-        </div>
-        <div>
-            <button onclick="appendToDisplay('4')">4</button>
-            <button onclick="appendToDisplay('5')">5</button>
-            <button onclick="appendToDisplay('6')">6</button>
-            <button onclick="setOperation('*')">*</button>
-        </div>
-        <div>
-            <button onclick="appendToDisplay('1')">1</button>
-            <button onclick="appendToDisplay('2')">2</button>
-            <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="setOperation('-')">-</button>
-        </div>
-        <div>
-            <button onclick="clearDisplay()">C</button>
-            <button onclick="appendToDisplay('0')">0</button>
-            <button onclick="calculateResult()">=</button>
-            <button onclick="setOperation('+')">+</button>
-        </div>
+
+    <div class="display-area">
+        <div id="mode-label">STANDARD</div>
+        <div id="input-view"></div>
+        <div id="result-view">0</div>
     </div>
-    <div id="converter" class="converter">
-        <h2>Select a unit converter:</h2>
-        <select id="unit-selector">
-            <option value="currency">Currency</option>
-            <option value="length">Length</option>
-            <option value="weight">Weight</option>
-            <option value="mass">Mass</option>
-            <option value="area">Area</option>
-            <option value="time">Time</option>
-            <option value="data">Data</option>
-            <option value="discount">Discount</option>
-            <option value="volume">Volume</option>
-            <option value="numeral-system">Numeral System</option>
-            <option value="speed">Speed</option>
-            <option value="temperature">Temperature</option>
-            <option value="bmi">BMI</option>
-        </select>
-        <div id="converter-display">Converter result will be shown here.</div>
+
+    <div class="grid" id="main-grid">
+        <button class="alpha-btn" onclick="toggleABC()">ABC</button>
+        <button class="sci-btn" onclick="add('Math.sin(')">sin</button>
+        <button class="sci-btn" onclick="add('Math.cos(')">cos</button>
+        <button class="sci-btn" onclick="add('Math.tan(')">tan</button>
+        <button class="ac" onclick="cls()">AC</button>
+
+        <button class="sci-btn" onclick="add('Math.sqrt(')">√</button>
+        <button class="sci-btn" onclick="add('**2')">x²</button>
+        <button class="sci-btn" onclick="add('**')">^</button>
+        <button class="sci-btn" onclick="add('Math.PI')">π</button>
+        <button class="op" onclick="add('/')">÷</button>
+
+        <button onclick="add(7)">7</button>
+        <button onclick="add(8)">8</button>
+        <button onclick="add(9)">9</button>
+        <button class="op" onclick="add('*')">×</button>
+        <button class="op" onclick="del()">DEL</button>
+
+        <button onclick="add(4)">4</button>
+        <button onclick="add(5)">5</button>
+        <button onclick="add(6)">6</button>
+        <button class="op" onclick="add('-')">-</button>
+        <button class="sci-btn" onclick="addConst('G')">G</button>
+
+        <button onclick="add(1)">1</button>
+        <button onclick="add(2)">2</button>
+        <button onclick="add(3)">3</button>
+        <button class="op" onclick="add('+')">+</button>
+        <button class="sci-btn" onclick="addConst('g')">g</button>
+
+        <button onclick="add(0)">0</button>
+        <button onclick="add('.')">.</button>
+        <button class="eq" onclick="solve()">SOLVE (=)</button>
+        <button class="sci-btn" onclick="addConst('R')">R</button>
     </div>
-    <script>
-        function showTab(tab) {
-            document.querySelector('.calculator').classList.remove('active');
-            document.querySelector('.converter').classList.remove('active');
-            document.getElementById(tab).classList.add('active');
+
+    <div id="alphabet-panel"></div>
+</div>
+
+<script>
+    let inputView = document.getElementById('input-view');
+    let resultView = document.getElementById('result-view');
+    let modeLabel = document.getElementById('mode-label');
+    let expression = "";
+
+    // Alphabet Panel তৈরি করা
+    const abcPanel = document.getElementById('alphabet-panel');
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    letters.forEach(l => {
+        let btn = document.createElement("button");
+        btn.innerText = l;
+        btn.className = "abc-key";
+        btn.onclick = () => { add(l); toggleABC(); };
+        abcPanel.appendChild(btn);
+    });
+
+    function add(val) {
+        expression += val;
+        inputView.innerText = expression;
+    }
+
+    function addConst(c) {
+        const vals = { 'G': 6.674e-11, 'g': 9.806, 'R': 8.314, 'F': 96485 };
+        expression += vals[c];
+        inputView.innerText = expression;
+        resultView.innerText = c;
+    }
+
+    function toggleABC() {
+        let pnl = document.getElementById('alphabet-panel');
+        pnl.style.display = (pnl.style.display === 'grid') ? 'none' : 'grid';
+        modeLabel.innerText = "ALPHABET MODE";
+    }
+
+    function switchMode(mode) {
+        modeLabel.innerText = mode + " MODE";
+        if(mode === 'GEO') {
+            alert("Geometry Mode: Enter side/radius then press SOLVE to find Area/Volume.");
+            expression = "Math.PI * "; // জ্যামিতির ডিফল্ট শুরু
+            inputView.innerText = expression;
         }
-        function appendToDisplay(value) {
-            let display = document.getElementById('calculator-display');
-            if (display.value === "0") display.value = value;
-            else display.value += value;
+    }
+
+    function solve() {
+        try {
+            // বীজগণিত সমাধানের জন্য আমরা eval ব্যবহার করছি
+            // যদি expression এ X বা Y থাকে তবে এটি ইউজারকে ভ্যালু ইনপুট দিতে বলবে
+            let tempExp = expression;
+            if (/[A-Z]/.test(tempExp)) {
+                let varFound = tempExp.match(/[A-Z]/)[0];
+                let val = prompt(`Enter value for ${varFound}:`);
+                tempExp = tempExp.replace(new RegExp(varFound, 'g'), val);
+            }
+
+            // ব্র্যাকেট অটো ক্লোজ
+            let open = (tempExp.match(/\(/g) || []).length;
+            let close = (tempExp.match(/\)/g) || []).length;
+            while(open > close) { tempExp += ")"; open--; }
+
+            let res = eval(tempExp);
+            resultView.innerText = Number.isInteger(res) ? res : res.toFixed(4);
+        } catch (e) {
+            resultView.innerText = "Error";
         }
-        function setOperation(operator) {
-            // Logic for setting the operation
-        }
-        function calculateResult() {
-            // Logic for calculating result
-        }
-        function clearDisplay() {
-            document.getElementById('calculator-display').value = '0';
-        }
-    </script>
+    }
+
+    function cls() { expression = ""; inputView.innerText = ""; resultView.innerText = "0"; modeLabel.innerText = "STANDARD"; }
+    function del() { expression = expression.slice(0, -1); inputView.innerText = expression; }
+    function openConverter() { alert("Converter: Feature coming in next commit!"); }
+</script>
+
 </body>
 </html>
