@@ -1,29 +1,37 @@
-function convert() {
-    let type = document.getElementById('convert-type').value;
-    let val = parseFloat(document.getElementById('input-val').value);
-    let resDisplay = document.getElementById('conv-res');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Unit Converter</title>
+    <style>
+        :root { --bg: #000; --accent: #ff8800; --text: #fff; --card: #1a1a1a; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .converter-container { width: 100%; max-width: 400px; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .back-link { display: inline-block; color: var(--accent); text-decoration: none; margin-bottom: 20px; font-size: 14px; font-weight: bold; }
+        
+        h2 { text-align: center; color: var(--accent); margin-bottom: 30px; font-size: 22px; letter-spacing: 1px; }
 
-    if (isNaN(val)) { resDisplay.innerText = "Enter a valid number"; return; }
+        label { display: block; margin-bottom: 8px; color: #888; font-size: 13px; }
+        
+        select, input { 
+            width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 10px; border: 2px solid #333; 
+            background: #000; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        
+        select:focus, input:focus { border-color: var(--accent); }
 
-    let result = "";
-    switch(type) {
-        case 'currency': result = (val * 110).toFixed(2) + " BDT / " + (val * 0.92).toFixed(2) + " Euro"; break;
-        case 'length': result = (val * 100) + " cm / " + (val * 3.281).toFixed(2) + " feet"; break;
-        case 'weight': result = (val * 1000) + " gram / " + (val * 2.205).toFixed(2) + " pound"; break;
-        case 'temp': result = ((val * 9/5) + 32).toFixed(2) + " °F / " + (val + 273.15).toFixed(2) + " K"; break;
-        case 'bmi': 
-            let h = prompt("Enter height in CM:");
-            result = "BMI: " + (val / ((h/100)*(h/100))).toFixed(2); break;
-        case 'data': result = (val * 1024) + " MB / " + (val * 8).toFixed(0) + " Megabits"; break;
-        case 'discount': 
-            let p = prompt("Enter Discount %:");
-            result = "You Save: " + (val * p / 100) + " | Final: " + (val - (val * p / 100)); break;
-        case 'speed': result = (val * 3.6).toFixed(2) + " km/h / " + (val * 2.237).toFixed(2) + " mph"; break;
-        case 'area': result = (val * 10.764).toFixed(2) + " sq. ft / " + (val / 4047).toFixed(4) + " Acre"; break;
-        case 'volume': result = (val * 1000).toFixed(0) + " ml / " + (val * 0.264).toFixed(2) + " Gallon"; break;
-        case 'time': result = (val * 60).toFixed(0) + " min / " + (val * 3600).toFixed(0) + " sec"; break;
-        case 'numeral': result = "Binary: " + (val >>> 0).toString(2) + " | Hex: " + (val >>> 0).toString(16).toUpperCase(); break;
-        default: result = "Select a valid category";
-    }
-    resDisplay.innerText = result;
-}
+        .result-area { 
+            background: #222; padding: 20px; border-radius: 12px; margin-top: 10px; 
+            border-left: 5px solid var(--accent); min-height: 50px; display: flex; align-items: center;
+        }
+
+        #conv-res { font-size: 18px; color: #00ff88; font-weight: bold; word-break: break-all; }
+
+        .footer-note { text-align: center; font-size: 11px; color: #555; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<div
