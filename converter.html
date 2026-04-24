@@ -1,0 +1,29 @@
+function convert() {
+    let type = document.getElementById('convert-type').value;
+    let val = parseFloat(document.getElementById('input-val').value);
+    let resDisplay = document.getElementById('conv-res');
+
+    if (isNaN(val)) { resDisplay.innerText = "Enter a valid number"; return; }
+
+    let result = "";
+    switch(type) {
+        case 'currency': result = (val * 110).toFixed(2) + " BDT / " + (val * 0.92).toFixed(2) + " Euro"; break;
+        case 'length': result = (val * 100) + " cm / " + (val * 3.281).toFixed(2) + " feet"; break;
+        case 'weight': result = (val * 1000) + " gram / " + (val * 2.205).toFixed(2) + " pound"; break;
+        case 'temp': result = ((val * 9/5) + 32).toFixed(2) + " °F / " + (val + 273.15).toFixed(2) + " K"; break;
+        case 'bmi': 
+            let h = prompt("Enter height in CM:");
+            result = "BMI: " + (val / ((h/100)*(h/100))).toFixed(2); break;
+        case 'data': result = (val * 1024) + " MB / " + (val * 8).toFixed(0) + " Megabits"; break;
+        case 'discount': 
+            let p = prompt("Enter Discount %:");
+            result = "You Save: " + (val * p / 100) + " | Final: " + (val - (val * p / 100)); break;
+        case 'speed': result = (val * 3.6).toFixed(2) + " km/h / " + (val * 2.237).toFixed(2) + " mph"; break;
+        case 'area': result = (val * 10.764).toFixed(2) + " sq. ft / " + (val / 4047).toFixed(4) + " Acre"; break;
+        case 'volume': result = (val * 1000).toFixed(0) + " ml / " + (val * 0.264).toFixed(2) + " Gallon"; break;
+        case 'time': result = (val * 60).toFixed(0) + " min / " + (val * 3600).toFixed(0) + " sec"; break;
+        case 'numeral': result = "Binary: " + (val >>> 0).toString(2) + " | Hex: " + (val >>> 0).toString(16).toUpperCase(); break;
+        default: result = "Select a valid category";
+    }
+    resDisplay.innerText = result;
+}
